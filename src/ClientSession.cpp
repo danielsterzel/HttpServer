@@ -4,6 +4,8 @@
 
 #include "ClientSession.h"
 #include <iostream>
+
+#include "HttpRequest.h"
 #include "Parser.h"
 
 ClientSession::ClientSession(boost::asio::ip::tcp::socket&& socket_): socket(std::move(socket_)) {
@@ -61,8 +63,8 @@ void ClientSession::getRequest() {
             std::getline(requestStream, requestLine);
 
             requestLine.pop_back(); // get rid of "\r" in order to properly view the string in console
-            std::cout << "REQUEST LINE: " << requestLine << "\n";
-            std::cout <<" ---------------------------------- \n";
+            // std::cout << "REQUEST LINE: " << requestLine << "\n";
+            // std::cout <<" ---------------------------------- \n";
 
             std::vector<std::string> parsedRequestLine = {};
             std::stringstream ss(requestLine);
@@ -70,14 +72,30 @@ void ClientSession::getRequest() {
 
             // maybe find a better way to do this? Also get rid of whitespaces
             while (std::getline(ss, t, '/')) {
+                // trim strings
+                const std::string whitespaces = " \n\r";
+
+                size_t start = t.find_first_not_of(whitespaces);
+                if (start == std::string::npos) {
+                    std::cerr << "Error triming string\n";
+                }
+                size_t end = t.find_last_not_of(whitespaces);
+
+                t = t.substr(start, end -start + 1);
                 parsedRequestLine.emplace_back(std::move(t));
             }
 
-            for (const auto& el: parsedRequestLine) {
-                std::cout << el << "\n";
-            }
+
+            // for (const auto& el: parsedRequestLine) {
+            //     std::cout << el << "\n";
+            // }
 
 
+            HttpRequest clientRequest(parseMethod(parsedRequestLine.at(0)),
+                parsedRequestLine.at(1),
+                parsedRequestLine.at(2));
+
+            std::cout << clientRequest.httpRequestVersion << "\n";
 
             // after reading the header we have to parse it.
             // check what type of method it is
@@ -90,7 +108,7 @@ void ClientSession::getRequest() {
                     headerLine.pop_back();
                 }
 
-                std::cout << headerLine << "\n";
+                // std::cout << headerLine << "\n";
 
             }
 
