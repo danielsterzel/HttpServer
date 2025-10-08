@@ -63,15 +63,15 @@ void ClientSession::getRequest() {
             std::getline(requestStream, requestLine);
 
             requestLine.pop_back(); // get rid of "\r" in order to properly view the string in console
-            // std::cout << "REQUEST LINE: " << requestLine << "\n";
-            // std::cout <<" ---------------------------------- \n";
+            std::cout << "REQUEST LINE: " << requestLine << "\n";
+            std::cout <<" ---------------------------------- \n";
 
             std::vector<std::string> parsedRequestLine = {};
             std::stringstream ss(requestLine);
             std::string t;
 
             // maybe find a better way to do this? Also get rid of whitespaces
-            while (std::getline(ss, t, '/')) {
+            while (std::getline(ss, t, ' ')) {
                 // trim strings
                 const std::string whitespaces = " \n\r";
 
@@ -85,7 +85,9 @@ void ClientSession::getRequest() {
                 parsedRequestLine.emplace_back(std::move(t));
             }
 
-
+            if (parsedRequestLine.at(1) == "/") {
+                parsedRequestLine.at(1) = "/index.html";
+            }
             // for (const auto& el: parsedRequestLine) {
             //     std::cout << el << "\n";
             // }
@@ -95,7 +97,8 @@ void ClientSession::getRequest() {
                 parsedRequestLine.at(1),
                 parsedRequestLine.at(2));
 
-            std::cout << clientRequest.httpRequestVersion << "\n";
+            std::cout << "HttpRequest version: " << clientRequest.httpRequestVersion << "\n";
+            std::cout << "Served file path: " << clientRequest.servingFilePath << "\n";
 
             // after reading the header we have to parse it.
             // check what type of method it is

@@ -18,7 +18,7 @@ enum class HttpMethod {
 
 // problem with this method
 
-inline HttpMethod parseMethod(const std::string& methodStr) {
+inline HttpMethod parseMethod(std::string& methodStr) {
     // transform applies a function to each element in range
     std::transform(methodStr.begin(), methodStr.end(), methodStr.begin(), ::toupper);
 
